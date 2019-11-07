@@ -1,0 +1,103 @@
+version: "3"
+volumes:
+  data:
+services:
+  eureka-server:
+    image: eureka-server
+    ports:
+     - "8761:8761"
+    # depends_on:
+    #   - mysql
+  customer-service:
+    image: customer-service
+    expose:
+      - 9093
+    depends_on:
+      - eureka-server
+    links:
+      - zuul-gateway
+      - eureka-server
+    environment:
+      SERVICE_NAME: customer-service
+      SERVICE_PORT: 9093
+      EUREKA_HOST: eureka-server
+      EUREKA_PORT: 8761
+      HOST_GATEWAY: http://zuul-gateway:8080/api
+      DATASOURCE_DRIVER_CLASSNAME: com.mysql.jdbc.Driver
+      DATASOURCE_PLATFORM: mysql
+      # DATASOURCE_URL: jdbc:mysql://mysql/zallpytest?allowPublicKeyRetrieval=true&useSSL=false
+      DATASOURCE_URL: jdbc:mysql://db4free.net/zallpytest?allowPublicKeyRetrieval=true&useSSL=false
+      DATASOURCE_USERNAME: muriloao
+      DATASOURCE_PASSWORD: 123456789
+      JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
+      JPA_HIBERNATE_DLL_AUTO: update
+
+  credit-service:
+    image: credit-service
+    expose:
+      - 9095
+    depends_on:
+      - eureka-server
+    environment:
+      SERVICE_NAME: credit-service
+      SERVICE_PORT: 9095
+      EUREKA_HOST: eureka-server
+      EUREKA_PORT: 8761
+      HOST_GATEWAY: http://zuul-gateway:8080/api
+
+  proposal-service:
+    image: proposal-service
+    expose:
+      - 9095
+    depends_on:
+      - eureka-server
+      - customer-service
+    environment:
+      SERVICE_NAME: proposal-service
+      SERVICE_PORT: 9094
+      EUREKA_HOST: eureka-server
+      EUREKA_PORT: 8761
+      HOST_GATEWAY: http://zuul-gateway:8080/api
+      DATASOURCE_DRIVER_CLASSNAME: com.mysql.jdbc.Driver
+      DATASOURCE_PLATFORM: mysql
+      DATASOURCE_URL: jdbc:mysql://db4free.net/zallpytest?allowPublicKeyRetrieval=true&useSSL=false
+      DATASOURCE_USERNAME: muriloao
+      DATASOURCE_PASSWORD: 123456789
+      JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQL5Dialect
+      JPA_HIBERNATE_DLL_AUTO: update
+
+  zuul-gateway:
+    image: zuul-gateway
+    expose:
+     - 8080
+    depends_on:
+      - eureka-server
+    ports:
+     - "8080:8080"
+    environment:
+      SERVICE_NAME: zuul-gateway
+      SERVICE_PORT: 8080
+      EUREKA_HOST: eureka-server
+      EUREKA_PORT: 8761
+      ZUUL_PREFIX: /api
+
+  # mysql:
+  #   image: mysql:8.0.17
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 123456789
+  #     MYSQL_DATABASE: zallpytest
+  #     MYSQL_USER: muriloao
+  #     MYSQL_PASSWORD: 123456789
+  #   ports:
+  #    - "3306:3306"
+
+
+  frontend:
+    build: ./frontend
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/usr/src/app/src
+      - ./frontend/public:/usr/src/app/public

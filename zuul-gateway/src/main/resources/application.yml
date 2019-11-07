@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: ${SERVICE_NAME:zuul-gateway}
+
+server:
+  port: ${SERVICE_PORT:8080}
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST:eureka-server}
+    port: ${EUREKA_PORT:8761}
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+
+zuul:
+  prefix: ${ZUUL_PREFIX:/api}
+  ignoredServices: '*'
+  routes:
+    customer-service:
+      path: /customer/**
+      url: http://customer-service:9093
+    proposal-service:
+      path: /proposal/**
+      url: http://proposal-service:9094
+    credit-service:
+      path: /credit/**
+      url: http://credit-service:9095
+    frontend:
+      path: /app/**
+      url: http://frontend:3000
+    eureka-server:
+        path: /
+        url: http://eureka-server:8761
+
+
+management:
+  security:
+    enabled: false

@@ -1,0 +1,49 @@
+server:
+  port: ${SERVICE_PORT:9094}
+  connection:
+    timeout: 20000
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST:eureka-server}
+    port: ${EUREKA_PORT:8761}
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${eureka.instance.port}/eureka/
+    healthcheck:
+      enabled: true
+    lease:
+      duration: 5
+
+spring:
+  application:
+    name: ${SERVICE_NAME:credit-service}
+  devtools:
+    remote:
+      secret: mysecret
+  datasource:
+    driver-class-name: ${DATASOURCE_DRIVER_CLASSNAME:com.mysql.jdbc.Driver}
+    platform: ${DATASOURCE_PLATFORM:mysql}
+    url: ${DATASOURCE_URL:jdbc:mysql://db4free.net/zallpytest?verifyServerCertificate=false&useSSL=false&requireSSL=false}
+    username: ${DATASOURCE_USERNAME:muriloao}
+    password: ${DATASOURCE_PASSWORD:123456789}
+
+  jpa:
+    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MySQLDialect}
+    generate-ddl: false
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DLL_AUTO:update}
+    show-sql: true
+
+management:
+  security:
+    enabled: false
+
+#authserver:
+#  hostname: http://localhost:9092
+#security:
+#  oauth2:
+#    resource:
+#      userInfoUri: ${authserver.hostname}/user

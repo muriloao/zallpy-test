@@ -1,0 +1,2 @@
+export const ADD_PROPOSAL = "ADD_PROPOSAL";
+export const GET_PROPOSAL = "GET_PROPOSAL";
